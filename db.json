@@ -1,0 +1,32 @@
+{
+  "settings": {
+    "source_url": "https://signincode.vivarocky.in/",
+    "signincode_password": "atrok",
+    "fetch_mode": "curl"
+  },
+  "admin": {
+    "username": "admin",
+    "password_hash": "$2b$10$LefkasI87xXtHS5Z47GAqeCodX.FfwtQRNIEvmUoQIdteB9ggLhJ2"
+  },
+  "users": [
+    {
+      "username": "demo",
+      "password_hash": "$2b$10$xhL/AbWpLGQ29MklPzInQuty5sGPiVivBduLdBBowVGKeZCy6XkUS",
+      "active": true
+    },
+    {
+      "username": "taicorn24",
+      "password_hash": "$2a$10$wAGyQab8Zg86zrpCukNr3O5u76o5fAPG3gqnKkqWP8Sv8bLKT5LWK",
+      "active": true
+    },
+    {
+      "username": "sachtai",
+      "password_hash": "$2a$10$Xj56P0mo0GRJsogVie9nNuPYv.pIF1xFW8cRAhZ4lcXbbUmor9wbq",
+      "active": true
+    }
+  ],
+  "emails": [
+    "michelle5fn@mailsgo.uk",
+    "mickbriand22@glintwater.com"
+  ]
+}

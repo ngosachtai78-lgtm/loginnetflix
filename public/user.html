@@ -1,0 +1,19 @@
+
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>User Panel</title><link rel="stylesheet" href="/assets/style.css"></head><body>
+<div class="header"><div class="brand"><div class="logo"></div><div><div style="font-weight:800">Sign-in Code Portal</div><div class="sub">User Panel</div></div></div><div class="actions"><span class="pill">Signed in</span><button id="logout">Logout</button></div></div>
+<div class="container">
+  <div class="card">
+    <div class="grid" style="grid-template-columns:1fr auto;gap:10px;align-items:end">
+      <div><label>Email</label><input id="email" placeholder="you@example.com"></div>
+      <button class="btn" id="go">Show Code</button>
+    </div>
+  </div>
+  <div class="card" style="margin-top:18px">
+    <div class="viewer"><iframe id="frame" sandbox=""></iframe></div>
+  </div>
+</div>
+<script src="/assets/app.js"></script><script>
+logout.onclick=async()=>{await fetch('/api/auth/logout',{method:'POST'});location.href='/login-user.html';};
+go.onclick=async()=>{frame.srcdoc='<div style="padding:20px;font-family:system-ui">Đang tải...</div>';try{const r=await fetch('/api/show-code',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email.value.trim().toLowerCase()})});const t=await r.text();if(!r.ok){frame.srcdoc=t;toast('Lỗi: '+t,'err');return;}frame.srcdoc=t;}catch(e){frame.srcdoc=String(e);toast('Lỗi: '+e.message,'err');}};
+</script><div class="toast"></div></body></html>

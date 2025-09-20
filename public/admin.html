@@ -1,0 +1,35 @@
+
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Admin Panel</title><link rel="stylesheet" href="/assets/style.css"></head><body>
+<div class="header"><div class="brand"><div class="logo"></div><div><div style="font-weight:800">Sign-in Code Portal</div><div class="sub">Admin Panel</div></div></div><div class="actions"><span class="pill">Admin</span><button id="logout">Logout</button></div></div>
+<div class="container"><div class="grid grid-2">
+  <div class="card" id="sec-settings"><h2>Cài đặt nguồn</h2>
+    <label>Source URL</label><input id="source_url" placeholder="https://signincode.vivarocky.in/">
+    <label>Mật khẩu Signincode</label><input id="signincode_password" placeholder="atrok">
+    <div style="display:flex;gap:10px;margin-top:14px"><button id="save_settings" class="btn">Lưu cài đặt</button></div>
+  </div>
+  <div class="card" id="sec-adminpass"><h2>Đổi mật khẩu Admin</h2>
+    <label>Mật khẩu mới</label><input id="new_admin_pass" type="password">
+    <div style="display:flex;gap:10px;margin-top:14px"><button id="change_admin_pass" class="btn">Đổi mật khẩu</button></div>
+  </div>
+  <div class="card" id="sec-users"><h2>Quản lý User đăng nhập</h2>
+    <div class="grid" style="grid-template-columns:1fr 1fr;gap:14px"><div><label>Username</label><input id="u_username"></div><div><label>Password</label><input id="u_password" type="password"></div></div>
+    <label>Kích hoạt?</label><select id="u_active"><option value="true">true</option><option value="false">false</option></select>
+    <div style="display:flex;gap:10px;margin-top:14px"><button id="create_user" class="btn">Active</button></div>
+    <table id="utbl"><thead><tr><th>Username</th><th>Active</th><th>Hành động</th></tr></thead><tbody></tbody></table>
+  </div>
+  <div class="card" id="sec-emails"><h2>Danh sách Email được phép</h2>
+    <div class="grid" style="grid-template-columns:1fr .3fr;gap:10px"><input id="em_input" placeholder="you@example.com"><button id="em_add" class="btn">Thêm</button></div>
+    <table id="emtbl"><thead><tr><th>Email</th><th>Hành động</th></tr></thead><tbody></tbody></table>
+  </div>
+</div></div>
+<script src="/assets/app.js"></script><script>
+logout.onclick=async()=>{await fetch('/api/auth/logout',{method:'POST'});location.href='/login-admin.html';};
+async function loadSettings(){const r=await api('/api/admin/settings');if(!r.ok){toast(r.data.error||'Lỗi','err');return;}source_url.value=r.data.settings.source_url||'';signincode_password.value=r.data.settings.signincode_password||'';}
+save_settings.onclick=async()=>{const r=await api('/api/admin/settings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({source_url:source_url.value.trim(),signincode_password:signincode_password.value})});if(!r.ok){toast(r.data.error||'Lỗi','err');return;}toast('Đã lưu cài đặt');};
+change_admin_pass.onclick=async()=>{const r=await api('/api/admin/password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({new_password:new_admin_pass.value})});if(!r.ok){toast(r.data.error||'Lỗi','err');return;}toast('Đổi mật khẩu thành công');};
+async function loadUsers(){const r=await api('/api/admin/users');if(!r.ok){toast('Không tải được users','err');return;}const tb=document.querySelector('#utbl tbody');tb.innerHTML='';for(const u of r.data.users){const tr=document.createElement('tr');tr.innerHTML=`<td>${u.username}</td><td>${u.active}</td><td class="row-actions"><button class="btn danger small" data-act="del" data-user="${u.username}">Delete</button></td>`;tb.appendChild(tr);}tb.onclick=async ev=>{const b=ev.target.closest('button');if(!b)return;const user=b.dataset.user;if(b.dataset.act==='del'){await fetch('/api/admin/users/'+encodeURIComponent(user),{method:'DELETE'});loadUsers();}}}
+create_user.onclick=async()=>{if(!u_username.value||!u_password.value){toast('Nhập username & password','err');return;}await fetch('/api/admin/users',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u_username.value.trim(),password:u_password.value,active:(u_active.value==='true')})});u_password.value='';loadUsers();};
+async function loadEmails(){const r=await api('/api/admin/emails');if(!r.ok){toast('Không tải được emails','err');return;}const tb=document.querySelector('#emtbl tbody');tb.innerHTML='';for(const e of r.data.emails){const tr=document.createElement('tr');tr.innerHTML=`<td>${e}</td><td><button class="btn danger small" data-email="${e}">Xóa</button></td>`;tb.appendChild(tr);}tb.onclick=async ev=>{const b=ev.target.closest('button');if(!b)return;await fetch('/api/admin/emails/'+encodeURIComponent(b.dataset.email),{method:'DELETE'});loadEmails();}}
+em_add.onclick=async()=>{if(!em_input.value.trim())return;await fetch('/api/admin/emails',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:em_input.value.trim().toLowerCase()})});em_input.value='';loadEmails();};
+loadSettings();loadUsers();loadEmails();
+</script><div class="toast"></div></body></html>

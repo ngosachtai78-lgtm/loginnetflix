@@ -1,0 +1,20 @@
+{
+  "name": "signincode-portal",
+  "version": "1.5.1",
+  "private": true,
+  "description": "Portal with Admin/User login, email list, global signincode password; shows full HTML like source. UI glass/gradient.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "reset": "node scripts/reset-db.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "express-session": "^1.17.3",
+    "jsdom": "^24.0.0",
+    "node-fetch": "^2.7.0",
+    "sanitize-html": "^2.13.0"
+  }
+}
