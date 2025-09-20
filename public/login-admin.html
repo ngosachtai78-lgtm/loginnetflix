@@ -2,7 +2,7 @@
 <!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Login — Admin</title><link rel="stylesheet" href="/assets/style.css"></head><body>
 <div class="header"><div class="brand"><div class="logo"></div><div><div style="font-weight:800">Sign-in Code Portal</div><div class="sub">Admin Login</div></div></div><div class="actions"><a href="/login-user.html"><button class="btn ghost small">User</button></a></div></div>
 <div class="login-wrap"><div class="login-card"><div class="btn tag">Restricted</div><div class="login-title">Đăng nhập quản trị</div><div class="sub">Quản lý cài đặt, user, email.</div>
-<label>Username</label><input id="username" placeholder="admin"><label>Password</label><input id="password" type="password" placeholder="admin123">
+<label>Username</label><input id="username" placeholder="Điền Tài Khoản"><label>Password</label><input id="password" type="password" placeholder="Điền Mật Khẩu">
 <div class="login-actions"><button class="btn" id="login">Login</button><a class="btn ghost" href="/login-user.html" style="text-decoration:none;display:inline-flex;align-items:center">Login as User</a></div></div></div>
 <script src="/assets/app.js"></script><script>
 login.onclick=async()=>{const r=await api('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({role:'admin',username:username.value.trim(),password:password.value})});if(!r.ok){toast(r.data.error||'Login failed','err');return;}toast('Logged in');location.href='/admin.html';};
