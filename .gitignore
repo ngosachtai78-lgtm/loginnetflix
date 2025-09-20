@@ -1,0 +1,38 @@
+# Node modules
+node_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# DB và dữ liệu app
+db.json
+
+# Env files
+.env
+.env.local
+.env.*.local
+
+# Build output
+dist/
+build/
+.cache/
+.next/
+out/
+coverage/
+
+# IDE/editor stuff
+.vscode/
+.idea/
+.DS_Store
+*.swp
+
