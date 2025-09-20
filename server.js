@@ -1,15 +1,15 @@
-// Bỏ qua SSL check cho request HTTPS không hợp lệ
-const https = require('https');
+// ===================== IMPORTS =====================
 const express = require('express');
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
-const fetch = require('node-fetch');
 const sanitizeHtml = require('sanitize-html');
+const { exec } = require('child_process');
 const DB = require('./db');
 
 const app = express();
 const START_PORT = Number(process.env.PORT || 4000);
 
+// ===================== MIDDLEWARE =====================
 app.use(express.json());
 app.use(session({
   secret: process.env.SESSION_SECRET || 'dev-secret-change-me',
@@ -19,7 +19,6 @@ app.use(session({
 }));
 app.use(express.static('public'));
 
-// middleware kiểm tra role
 function requireRole(role) {
   return (req, res, next) => {
     const u = req.session.user;
@@ -70,7 +69,9 @@ app.patch('/api/admin/settings', requireRole('admin'), (req, res) => {
 });
 
 // ===================== USERS =====================
-app.get('/api/admin/users', requireRole('admin'), (req, res) => res.json({ ok: true, users: DB.listUsers().map(u => ({ username: u.username, active: u.active })) }));
+app.get('/api/admin/users', requireRole('admin'), (req, res) =>
+  res.json({ ok: true, users: DB.listUsers().map(u => ({ username: u.username, active: u.active })) })
+);
 app.post('/api/admin/users', requireRole('admin'), async (req, res) => {
   const { username, password, active } = req.body || {};
   if (!username || !password) return res.status(400).json({ ok: false, error: 'Missing fields' });
@@ -88,7 +89,10 @@ app.patch('/api/admin/users/:username', requireRole('admin'), async (req, res) =
   DB.upsertUser({ ...exist, ...patch });
   res.json({ ok: true });
 });
-app.delete('/api/admin/users/:username', requireRole('admin'), (req, res) => { DB.deleteUser(req.params.username); res.json({ ok: true }); });
+app.delete('/api/admin/users/:username', requireRole('admin'), (req, res) => {
+  DB.deleteUser(req.params.username);
+  res.json({ ok: true });
+});
 
 // ===================== EMAILS =====================
 app.get('/api/admin/emails', requireRole('admin'), (req, res) => res.json({ ok: true, emails: DB.listEmails() }));
@@ -110,28 +114,21 @@ app.get('/api/emails', (req, res) => {
   res.json({ ok: true, emails: DB.listEmails() });
 });
 
-// ===================== SHOW CODE =====================
+// ===================== SHOW CODE (cURL) =====================
 async function fetchFullHtml(email) {
   const { source_url, signincode_password } = DB.getSettings();
-  const form = new URLSearchParams();
-  form.append('password', signincode_password);
-  form.append('recipient_email', email);
 
-  const r = await fetch(source_url, {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/x-www-form-urlencoded',
-      'origin': source_url,
-      'referer': source_url,
-      'user-agent': 'Mozilla/5.0'
-    },
-    body: form,
-    // Bypass SSL reject
-    agent: new https.Agent({ rejectUnauthorized: false })
+  const cmd = `curl -k -s -X POST -d "password=${signincode_password}&recipient_email=${email}" "${source_url}"`;
+
+  return new Promise((resolve, reject) => {
+    exec(cmd, { maxBuffer: 1024 * 1024 * 10 }, (err, stdout, stderr) => {
+      if (err) {
+        console.error("cURL error:", err, stderr);
+        return reject(stderr || err.message);
+      }
+      resolve(stdout);
+    });
   });
-
-  const raw = await r.text();
-  return raw;
 }
 
 app.post('/api/show-code', async (req, res) => {
